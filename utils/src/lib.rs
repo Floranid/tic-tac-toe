@@ -2,7 +2,7 @@ mod board;
 mod player;
 mod winner;
 
-pub use board::{Board, Point2D};
+pub use board::{Board, BoardIndex};
 pub use player::Player;
 pub use winner::Winner;
 

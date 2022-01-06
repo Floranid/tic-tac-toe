@@ -10,28 +10,25 @@ pub struct Board {
     trbl: isize,
 }
 
-pub type Point2D = (usize, usize);
+pub type BoardIndex = (usize, usize);
 
 impl Board {
     pub fn clear(&mut self) {
         *self = Self::default();
     }
 
-    pub fn cell_is_empty(&self, i: Point2D) -> bool {
+    pub fn cell_is_empty(&self, i: BoardIndex) -> bool {
         self.cells[i.1][i.0].is_none()
     }
 
-    pub fn get_cell(&self, i: Point2D) -> &Option<Player> {
+    pub fn get_cell(&self, i: BoardIndex) -> &Option<Player> {
         &self.cells[i.1][i.0]
     }
 
-    pub fn set_cell(&mut self, i: Point2D, player: Player) -> Option<Winner> {
-        if self.moves == 9 {
-            return Some(Winner::Draw);
-        }
+    pub fn set_cell(&mut self, i: BoardIndex, player: Player) -> Option<Winner> {
+        self.moves += 1;
 
         self.cells[i.1][i.0] = Some(player);
-        self.moves += 1;
 
         let weight = player as isize;
 
@@ -47,13 +44,14 @@ impl Board {
         }
 
         let winner_weight = 3 * weight;
-
         if self.rows[i.1] == winner_weight
             || self.cols[i.0] == winner_weight
             || self.tlbr == winner_weight
             || self.trbl == winner_weight
         {
             Some(Winner::Player(player))
+        } else if self.moves >= 9 {
+            Some(Winner::Draw)
         } else {
             None
         }
