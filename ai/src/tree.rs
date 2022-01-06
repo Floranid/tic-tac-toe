@@ -1,10 +1,15 @@
-use utils::{Board, BoardIndex, Player, Winner};
+use utils::{
+    Board,
+    BoardIndex,
+    Player,
+    Winner
+};
 use std::cmp::Ordering;
 
 struct Node {
     path: BoardIndex,
     state: Board,
-    score: Option<isize>,
+    score: isize,
     children: Vec<Node>,
 }
 
@@ -13,21 +18,17 @@ impl Node {
         Self {
             path,
             state,
-            score: Some(0),
+            score: 0,
             children: Vec::new(),
         }
-    }
-
-    fn compare_nodes(lhs: &&Self, rhs: &&Self) -> Ordering {
-        lhs.score.unwrap().cmp(&rhs.score.unwrap())
     }
     
     fn get_children(&mut self, player: Player) {
         if let Some(winner) = self.state.winner() {
-            self.score = Some(match winner {
+            self.score = match winner {
                 Winner::Draw => 0,
                 Winner::Player(player) => *player as isize,
-            })
+            }
         } else {
             for row in 0..3 {
                 for col in 0..3 {
@@ -43,8 +44,8 @@ impl Node {
 
             self.score = {
                 let chosen_child = match player {
-                        Player::X => self.children.iter().max_by(Self::compare_nodes),
-                        Player::O => self.children.iter().min_by(Self::compare_nodes),
+                        Player::X => self.children.iter().max_by_key(|c|c.score),
+                        Player::O => self.children.iter().min_by_key(|c|c.score),
                     }.unwrap();
                     chosen_child.score
             }
@@ -66,8 +67,8 @@ impl Tree {
     pub fn min_max(&mut self, player: Player) -> BoardIndex {
         self.root.get_children(player);
         match player {
-            Player::X => self.root.children.iter().max_by(Node::compare_nodes),
-            Player::O => self.root.children.iter().min_by(Node::compare_nodes),
+            Player::X => self.root.children.iter().max_by_key(|c|c.score),
+            Player::O => self.root.children.iter().min_by_key(|c|c.score),
         }.unwrap().path
     }
 }

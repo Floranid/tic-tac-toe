@@ -1,6 +1,10 @@
 mod tree;
 
-use utils::{Board, BoardIndex, Player};
+use utils::{
+    Board,
+    BoardIndex,
+    Player
+};
 use tree::Tree;
 
 pub fn generate_move(board: Board, player: Player) -> BoardIndex {
