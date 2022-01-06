@@ -1,13 +1,18 @@
-use std::error::Error;
-use std::thread::sleep;
-use std::time::Duration;
+use std::{
+    error::Error,
+    thread::sleep,
+    time::Duration,
+};
+use std::hint::unreachable_unchecked;
 
-use sdl2::event::Event;
-use sdl2::keyboard::Keycode;
-use sdl2::mouse::MouseButton;
-use sdl2::pixels::Color;
-use sdl2::rect::Point;
-use sdl2::render::WindowCanvas;
+use sdl2::{
+    event::Event,
+    keyboard::Keycode,
+    mouse::MouseButton,
+    pixels::Color,
+    rect::Point,
+    render::WindowCanvas,
+};
 
 use utils::{Board, BoardIndex, Player, Winner};
 
@@ -23,7 +28,6 @@ pub fn run() -> Result {
 
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
-
     let window = video_subsystem
         .window("Tic-Tac-Toe", WINDOW_SIZE as u32, WINDOW_SIZE as u32)
         .position_centered()
@@ -162,29 +166,29 @@ fn draw_cells(canvas: &mut WindowCanvas, board: &mut Board) -> Result {
 fn process_left_click(x: i32, y: i32, board: &mut Board) {
     let i = ((x / CELL_SIZE) as usize, (y / CELL_SIZE) as usize);
     if board.cell_is_empty(i) {
-        make_moves_and_reset_on_win(board, i);
+        update_board(board, i);
     }
 }
 
-fn make_moves_and_reset_on_win(board: &mut Board, i: BoardIndex) {
+fn update_board(board: &mut Board, i: BoardIndex) {
     if let Some(ref winner) = board.set_cell(i, Player::X) {
-        play_winning_sound(winner);
+        display_winner(winner);
         board.clear();
     }
 
-    let ai_move = ai::generate_move(board, Player::O);
+    let ai_move = ai::generate_move(*board, Player::O);
 
     if let Some(ref winner) = board.set_cell(ai_move, Player::O) {
-        play_winning_sound(winner);
+        display_winner(winner);
         board.clear();
     }
 }
 
-fn play_winning_sound(winner: &Winner) {
+fn display_winner(winner: &Winner) {
     match winner {
         Winner::Draw => println!("Draw"),
         Winner::Player(Player::O) => println!("You lost! (again...)"),
-        Winner::Player(Player::X) => unreachable!(), // unreachable_unchecked()
-                                                     // note: segfaults the players system out of spite if they manage to win
+        Winner::Player(Player::X) => unsafe { unreachable_unchecked() },
+        // yes i do trust my code that much, why are you asking
     }
 }

@@ -1,13 +1,9 @@
+mod tree;
+
 use utils::{Board, BoardIndex, Player};
+use tree::Tree;
 
-pub fn generate_move(board: &mut Board, _player: Player) -> BoardIndex {
-    for row in 0..3 {
-        for col in 0..3 {
-            if board.cell_is_empty((row, col)) {
-                return (row, col);
-            }
-        }
-    }
-    unreachable!()
-
+pub fn generate_move(board: Board, player: Player) -> BoardIndex {
+    let mut tree = Tree::new(board);
+    tree.min_max(player)
 }

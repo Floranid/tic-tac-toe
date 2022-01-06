@@ -8,6 +8,7 @@ pub struct Board {
     cols: [isize; 3],
     tlbr: isize,
     trbl: isize,
+    winner: Option<Winner>,
 }
 
 pub type BoardIndex = (usize, usize);
@@ -25,7 +26,7 @@ impl Board {
         &self.cells[i.1][i.0]
     }
 
-    pub fn set_cell(&mut self, i: BoardIndex, player: Player) -> Option<Winner> {
+    pub fn set_cell(&mut self, i: BoardIndex, player: Player) -> &Option<Winner> {
         self.moves += 1;
 
         self.cells[i.1][i.0] = Some(player);
@@ -44,7 +45,7 @@ impl Board {
         }
 
         let winner_weight = 3 * weight;
-        if self.rows[i.1] == winner_weight
+        self.winner = if self.rows[i.1] == winner_weight
             || self.cols[i.0] == winner_weight
             || self.tlbr == winner_weight
             || self.trbl == winner_weight
@@ -54,6 +55,12 @@ impl Board {
             Some(Winner::Draw)
         } else {
             None
-        }
+        };
+
+        &self.winner
+    }
+
+    pub fn winner(&self) -> &Option<Winner> {
+        &self.winner
     }
 }
