@@ -171,17 +171,17 @@ fn process_left_click(x: i32, y: i32, board: &mut Board) {
 }
 
 fn update_board(board: &mut Board, i: BoardIndex) {
-    if let Some(ref winner) = board.set_cell(i, Player::X) {
-        display_winner(winner);
-        board.clear();
+
+    fn make_move_and_check_win(board: &mut Board, i: BoardIndex, player: Player) {
+        if let Some(winner) = board.set_cell(i, player) {
+            display_winner(winner);
+            board.clear();
+        }
     }
 
-    let ai_move = ai::generate_move(*board, Player::O);
-
-    if let Some(ref winner) = board.set_cell(ai_move, Player::O) {
-        display_winner(winner);
-        board.clear();
-    }
+    make_move_and_check_win(board, i, Player::X);
+    let i = ai::generate_move(*board, Player::O);
+    make_move_and_check_win(board, i, Player::O);
 }
 
 fn display_winner(winner: &Winner) {
