@@ -22,6 +22,13 @@ impl Node {
             children: Vec::new(),
         }
     }
+
+    fn select_child(&self, player: Player) -> Option<&Self> {
+        match player {
+            Player::X => self.children.iter().max_by_key(|c|c.score),
+            Player::O => self.children.iter().min_by_key(|c|c.score),
+        }
+    }
     
     fn get_children(&mut self, player: Player) {
         if let Some(winner) = self.state.winner() {
@@ -42,18 +49,10 @@ impl Node {
                 }
             }
 
-            self.score = {
-                let chosen_child = match player {
-                        Player::X => self.children.iter().max_by_key(|c|c.score),
-                        Player::O => self.children.iter().min_by_key(|c|c.score),
-                    }.unwrap();
-                    chosen_child.score
-            }
+            self.score = self.select_child(player).unwrap().score;
         }
     }
 }
-
-//
 
 pub struct Tree {
     root: Box<Node>,
@@ -68,10 +67,7 @@ impl Tree {
 
     pub fn min_max(&mut self, player: Player) -> BoardIndex {
         self.root.get_children(player);
-        match player {
-            Player::X => self.root.children.iter().max_by_key(|c|c.score),
-            Player::O => self.root.children.iter().min_by_key(|c|c.score),
-        }.unwrap().path
+        self.root.select_child(player).unwrap().path
     }
 }
 
