@@ -4,7 +4,6 @@ use utils::{
     Player,
     Winner
 };
-use std::cmp::Ordering;
 
 struct Node {
     path: BoardIndex,
